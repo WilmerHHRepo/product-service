@@ -1,8 +1,8 @@
 # product-service
 Modulo para la gestión de los productos
 
-
-
+# Proyecto POSTMAN
+BOOTCAMP51.postman_collection.json
 
 # Crear La coleccion de parametros
 Esta coleccion permite configurar los movimientos y los productos de los clientes
