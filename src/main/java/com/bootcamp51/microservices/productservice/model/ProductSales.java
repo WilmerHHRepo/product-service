@@ -2,6 +2,8 @@ package com.bootcamp51.microservices.productservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.math.BigDecimal;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,15 +36,11 @@ public class ProductSales extends Product {
    */
   private BigDecimal availableBalance;
   /**
-   * value totalFees.
-   */
-  private Integer totalFees;
-  /**
    * value jointAccount.
    */
   private JointAccount jointAccount;
   /**
    * value movements.
    */
-  private Movement movements;
+  private List<Movement> movements;
 }

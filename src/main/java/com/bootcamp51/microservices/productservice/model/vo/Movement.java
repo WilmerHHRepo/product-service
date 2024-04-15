@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Movement {
-    private Integer retreat;
-    private Integer deposit;
+    private String retreat;
+    private String deposit;
 }

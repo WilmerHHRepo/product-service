@@ -1,10 +1,10 @@
 package com.bootcamp51.microservices.productservice.controller;
 
 import com.bootcamp51.microservices.productservice.model.Client;
+import com.bootcamp51.microservices.productservice.model.JointAccount;
 import com.bootcamp51.microservices.productservice.model.ProductSales;
-import com.bootcamp51.microservices.productservice.model.vo.ClientProductSalesRequest;
+import com.bootcamp51.microservices.productservice.dto.ProductSalesDTO;
 import com.bootcamp51.microservices.productservice.service.utils.ProductSalesServiceUtil;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +21,11 @@ public class ProductSalesController {
     private ProductSalesServiceUtil productSalesServiceUtil;
 
     @PostMapping
-    public ResponseEntity<Client> productSales(@RequestBody ClientProductSalesRequest productSalesRequest ){
+    public ResponseEntity<Client> productSales(@RequestBody ProductSalesDTO productSalesRequest) throws Exception {
         Client client = productSalesRequest.getClient();
         ProductSales productSales = productSalesRequest.getNewProductSales();
-        ObjectId id =  client.getId();
-        client = productSalesServiceUtil.productSales(client, productSales, id);
+        JointAccount jointAccount =  productSalesRequest.getJointAccount();
+        client = productSalesServiceUtil.productSales(client, productSales, jointAccount);
         return new ResponseEntity<>(client, HttpStatus.ACCEPTED);
     }
-
-
-
 }

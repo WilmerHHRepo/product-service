@@ -12,6 +12,10 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JointAccount {
   /**
+   * valor members.
+   */
+  private String[] members;
+  /**
    * valor indProduct.
    */
   private String indProduct;
@@ -19,6 +23,10 @@ public class JointAccount {
    * valor desProduct.
    */
   private String desProduct;
+  /**
+   * valor numAccount.
+   */
+  private String numAccount;
   /**
    * valor ownerCode.
    */

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 
 /**
  * Class Product model.
@@ -15,7 +16,8 @@ public class Product {
   /**
    * valor id.
    */
-  private ObjectId id;
+  @Id
+  private String id;
   /**
    * valor indTypeProduct.
    */

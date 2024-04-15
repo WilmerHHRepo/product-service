@@ -1,16 +1,29 @@
 package com.bootcamp51.microservices.productservice.service.utils;
 
 import static com.bootcamp51.microservices.productservice.constant.ConstantParameter.*;
+
+import static com.bootcamp51.microservices.productservice.enums.EnumProduct.*;
+
+import static com.bootcamp51.microservices.productservice.enums.EnumTypeClient.*;
+
+import static com.bootcamp51.microservices.productservice.enums.EnumErrorMenssage.*;
 import com.bootcamp51.microservices.productservice.model.Client;
+import com.bootcamp51.microservices.productservice.model.JointAccount;
 import com.bootcamp51.microservices.productservice.model.ProductSales;
 import com.bootcamp51.microservices.productservice.model.vo.Parameter;
+import com.bootcamp51.microservices.productservice.model.vo.RuleSales;
+import com.bootcamp51.microservices.productservice.repository.ClientRepository;
 import com.bootcamp51.microservices.productservice.repository.ParameterRepository;
 import com.bootcamp51.microservices.productservice.service.ProductSalesService;
-import org.bson.types.ObjectId;
+import lombok.RequiredArgsConstructor;
+import org.apache.el.util.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,36 +31,65 @@ import java.util.stream.Collectors;
 @Service
 public class ProductSalesServiceUtil {
 
-    @Autowired
-    private ParameterRepository parameterRepository;
+    private final Logger logger = LoggerFactory.getLogger(ProductSalesServiceUtil.class);
 
-    public Client productSales(Client client, ProductSales newProductSales, ObjectId id) {
+    private final ParameterRepository parameterRepository;
 
+    private final ClientRepository clientRepository;
 
-        ProductSalesService<Client, ProductSales, ObjectId> exec = (b, c) -> {
-            Optional.ofNullable(b).ifPresent(d -> {
-                Parameter Parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
+    public ProductSalesServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository) {
+        this.clientRepository = clientRepository;
+        this.parameterRepository = parameterRepository;
+    }
 
-                List<ProductSales> listProductSales = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(e ->
-                    d.getIndTypeProduct().equals(e.getIndTypeProduct()) && d.getIndProduct().equals(e.getIndProduct())
-                ).collect(Collectors.toList());
+    public Client productSales(Client client, ProductSales newProductSales, JointAccount jointAccount) throws Exception {
+        try {
+            ProductSalesService<Client, ProductSales, JointAccount> exec = (b, c) -> {
+                Optional.ofNullable(b).ifPresent(e -> {
+                    Parameter Parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
 
-                Optional.ofNullable(Parameter1001.getListParameter().getListRuleSales()).orElse(new ArrayList<>()).stream().filter(f ->
-                                client.getDesTypeClient().equals(f.getIndTypeClient()) && d.getIndProduct().equals(f.getIndProduct())
-                        ).findFirst().ifPresent(g ->{
-                            if (Integer.valueOf(g.getNumber()).compareTo(listProductSales.size()) > 0){
-                                String abc = "Supera la cantidad de cuentas por cliente";
-                                throw new StringIndexOutOfBoundsException(abc);
+                    List<ProductSales> productSalesList = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(f ->
+                            e.getIndTypeProduct().equals(f.getIndTypeProduct()) && e.getIndProduct().equals(f.getIndProduct())
+                    ).collect(Collectors.toList());
+
+                    Optional<RuleSales> RuleSales =  Optional.ofNullable(Parameter1001.getListParameter().getListRuleSales()).orElse(new ArrayList<>()).stream().filter(g ->
+                            client.getIndTypeClient().equals(g.getIndTypeClient()) && e.getIndProduct().equals(g.getIndProduct())
+                    ).findFirst();
+                    if (RuleSales.isPresent()){
+                        if (!RuleSales.get().getNumber().equals(ALL)) {
+                            if (Integer.valueOf(productSalesList.size()).compareTo(Integer.valueOf(RuleSales.get().getNumber())) >= 0) {
+                                logger.warn(ERROR1001.getDescription().concat(" - ").concat(ERROR1001.getDescription()));
+                                throw new RuntimeException(ERROR1001.getDescription());
                             }
+                        }
+                    }else {
+                        logger.warn(ERROR1002.getDescription().concat(" - ").concat(ERROR1002.getDescription()));
+                        throw new RuntimeException(ERROR1002.getDescription());
+                    }
+                    client.setProducts(new ArrayList<>());
+                    client.getProducts().add(e);
+                    clientRepository.addProductToClient(e, client.getId());
+                    if (e.getIndProduct().equals(COMMERCIALCREDIT.getCode()) && client.getIndTypeClient().equals(COMPANY.getCode())) {
+                        Optional.ofNullable(c.getMembers()).ifPresent(members -> {
+                            for (String m: members){
+                                clientRepository.addProductToClient(e, m);
+                                clientRepository.addJointAccountToProductToClient(b, m, c);
+                            }
+                            clientRepository.addJointAccountToProductToClient(b, client.getId(), c);
+                        });
+                    }
                 });
-                client.setProducts(new ArrayList<>());
-                client.getProducts().add(d);
-                //Graba aqui - invocar servicio
-            });
-            return client;
-        };
+                return client;
+            };
+            return exec.execute(newProductSales, jointAccount);
 
-        return exec.execute(newProductSales, id);
+        }catch (Exception e){
+            logger.error("ERROR: " + e.getMessage());
+            throw new Exception(e);
+        }
+
+
+
 
 
     }

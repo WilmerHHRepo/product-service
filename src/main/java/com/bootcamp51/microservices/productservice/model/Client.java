@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 
 
 /**
@@ -17,7 +18,8 @@ public class Client {
   /**
    * valor id.
    */
-  private ObjectId id;
+  @Id
+  private String id;
   /**
    * valor indTypeClient.
    */
@@ -34,6 +36,10 @@ public class Client {
    * valor desTypeDocument.
    */
   private String desTypeDocument;
+  /**
+   * valor numDocument.
+   */
+  private String numDocument;
   /**
    * valor name.
    */

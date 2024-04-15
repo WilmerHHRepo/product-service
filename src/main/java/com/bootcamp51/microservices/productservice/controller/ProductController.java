@@ -56,7 +56,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
         ObjectId objectId = new ObjectId(id);
-        product.setId(objectId);
+        product.setId(id);
         return new ResponseEntity<>(product, HttpStatus.ACCEPTED);
     }
 
