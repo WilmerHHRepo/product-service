@@ -1,6 +1,7 @@
 package com.bootcamp51.microservices.productservice.service.utils;
 
 
+import com.bootcamp51.microservices.productservice.client.ApiClient;
 import com.bootcamp51.microservices.productservice.enums.EnumTypeMovement;
 import com.bootcamp51.microservices.productservice.model.Client;
 import com.bootcamp51.microservices.productservice.model.Movement;
@@ -35,15 +36,15 @@ public class ProductMovementServiceUtil {
 
     private final ClientRepository clientRepository;
 
-    public ProductMovementServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository) {
+    private final ApiClient apiClient;
+
+    public ProductMovementServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository, ApiClient apiClient) {
         this.clientRepository = clientRepository;
         this.parameterRepository = parameterRepository;
+        this.apiClient = apiClient;
     }
 
-    public Client productMovement(Client client, Movement movement, String account)  throws Exception  {
-
-        Client objClient = clientRepository.findById(client.getId());
-
+    public Mono<Client> productMovement(Client client, Movement movement, String account)  throws Exception  {
         ProductMovementService<Client, Movement> exec = (a, b) -> {
             Optional.ofNullable(b).ifPresent( c -> {
                 Parameter parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
@@ -51,61 +52,21 @@ public class ProductMovementServiceUtil {
                 Optional<ProductSales> productSales = Optional.ofNullable(a.getProducts()).orElse(new ArrayList<>()).stream().filter(d ->
                     d.getNumAccount().equals(account)
                 ).findFirst();
-
                 if (productSales.isPresent()){
-
                     Optional.ofNullable(parameter1001.getListParameter().getListRuleMovement()).orElse(new ArrayList<>()).stream().filter(e ->
                             a.getIndTypeClient().equals(e.getIndTypeClient()) && productSales.get().getIndProduct().equals(e.getIndProduct())
                     ).findFirst().ifPresent(param -> {
-
-
-                        BigDecimal availableBalance = productSales.get().getAvailableBalance();
-                        BigDecimal countableBalance = productSales.get().getCountableBalance();
-                        Date lastDay = getLastDay();
-                        Date FirstDay = getFirstDay();
-
-                        Integer totalMovementsDeposit = (int)Optional.ofNullable(productSales.get().getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
-                                g.getIndTypeMovement().equals(EnumTypeMovement.DEPOSITO.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
-                        ).count();
-                        Integer totalMovementsRetreat = (int)Optional.ofNullable(productSales.get().getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
-                                g.getIndTypeMovement().equals(EnumTypeMovement.RETIRO.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
-                        ).count();
-
-                        BigDecimal factor = getFactorOperator(b.getIndTypeMovement());
-                        executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-
-//                        switch (productSales.get().getIndProduct()){
-//                            case CODE_SAVINGSACCOUNT:
-//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-//                                break;
-//                            case CODE_CURRENTACCOUNT:
-//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-//                                break;
-//                            case CODE_FIXEDTERMACCOUNT:
-//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-//                                break;
-//                            case CODE_PERSONALCREDIT:
-//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-//                                break;
-//                            case CODE_COMMERCIALCREDIT:
-//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-//                                break;
-//                            case CODE_CREDITCARD:
-//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-//                                break;
-//                        }
+                        executeAccountOperations(productSales.get(), param, b, a.getId());
                     });
                 }else {
                     logger.warn(ERROR1006.getDescription().concat(" - ").concat(ERROR1006.getDescription()));
                     throw new RuntimeException(ERROR1006.getDescription());
                 }
-
             });
-
-            return clientRepository.findById(a.getId());
+            //return clientRepository.findById(a.getId());
+            return apiClient.findByID(a.getId()).block();
         };
-
-        return exec.execute(objClient, movement);
+        return Mono.just(exec.execute(client, movement));
     }
 
 
@@ -141,7 +102,7 @@ public class ProductMovementServiceUtil {
         return calendar.getTime();
     }
 
-    private void executePasiveAccountOperations(ProductSales productSales, RuleMovement ruleMovement, Movement movement, String id){
+    private void executeAccountOperations(ProductSales productSales, RuleMovement ruleMovement, Movement movement, String id){
         BigDecimal availableBalance = productSales.getAvailableBalance();
         BigDecimal countableBalance = productSales.getCountableBalance();
         Date lastDay = getLastDay();
