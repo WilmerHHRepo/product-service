@@ -22,5 +22,5 @@ public class Movement {
     private Integer duesPaid;
     private String indPurchaseOrigin;
     private String desPurchaseOrigin;
-    private Date restrationDate;
+    private Date resgistrationDate;
 }

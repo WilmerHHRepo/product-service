@@ -8,10 +8,7 @@ import com.bootcamp51.microservices.productservice.service.utils.ProductSalesSer
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/bootcamp51/ms/product/sales")
@@ -20,7 +17,7 @@ public class ProductSalesController {
     @Autowired
     private ProductSalesServiceUtil productSalesServiceUtil;
 
-    @PostMapping
+    @PatchMapping
     public ResponseEntity<Client> productSales(@RequestBody ProductSalesDTO productSalesRequest) throws Exception {
         Client client = productSalesRequest.getClient();
         ProductSales productSales = productSalesRequest.getNewProductSales();

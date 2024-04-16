@@ -10,10 +10,12 @@ public class ConstantGeneral {
     public final static String TIME_SONE = "GMT-5:00";
     public final static String FACTOR_NEGATIVE = "-1";
     public final static String FACTOR_POSITIVE = "1";
-    public final static String CODE_DEPOSITO = "1";
-    public final static String CODE_RETIRO = "2";
-    public final static String CODE_PAGO = "3";
-    public final static String CODE_CONSUMO = "4";
+    public final static String CODE_DEPOSIT = "1";
+    public final static String CODE_RETREAT = "2";
+    public final static String CODE_PAYMENT = "3";
+    public final static String CODE_CONSUMPTION = "4";
+    public final static String COLLECTION_CLIENT = "client";
+
 
 
 

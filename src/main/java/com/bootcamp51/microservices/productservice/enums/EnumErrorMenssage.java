@@ -9,7 +9,8 @@ public enum EnumErrorMenssage {
     ERROR1002("1002","Product without sale."),
     ERROR1003("1003","Exceeds the number of deposit."),
     ERROR1004("1004","Exceeds the number of retreat."),
-    ERROR1005("1005","insufficient balance.")
+    ERROR1005("1005","insufficient balance."),
+    ERROR1006("1006","Product does not exist.")
     ;
 
     private String code;

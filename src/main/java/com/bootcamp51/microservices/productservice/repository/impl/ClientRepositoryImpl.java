@@ -1,5 +1,6 @@
 package com.bootcamp51.microservices.productservice.repository.impl;
 
+import com.bootcamp51.microservices.productservice.constant.ConstantGeneral;
 import com.bootcamp51.microservices.productservice.model.Client;
 import com.bootcamp51.microservices.productservice.model.JointAccount;
 import com.bootcamp51.microservices.productservice.model.Movement;
@@ -34,7 +35,7 @@ public class ClientRepositoryImpl implements ClientRepository {
         query.addCriteria(Criteria.where("_id").is(id)
         );
         update.push("products",newProductSales);
-        mongoTemplate.updateFirst(query, update, Client.class, "client");
+        mongoTemplate.updateFirst(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ClientRepositoryImpl implements ClientRepository {
                 )
         );
         update.push("products.$.jointAccount",jointAccount);
-        mongoTemplate.updateFirst(query, update, Client.class, "client");
+        mongoTemplate.updateFirst(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
     }
 
     @Override
@@ -64,9 +65,16 @@ public class ClientRepositoryImpl implements ClientRepository {
                 )
         );
         update.push("products.$.movements",movement)
-                .set("products.countableBalance", productSales.getCountableBalance())
-                .set("products.availableBalance", productSales.getAvailableBalance());
-        mongoTemplate.updateFirst(query, update, Client.class, "client");
+                .set("products.$.countableBalance", productSales.getCountableBalance())
+                .set("products.$.availableBalance", productSales.getAvailableBalance());
+        mongoTemplate.updateFirst(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
     }
 
+    @Override
+    public Client findById(String id) {
+        update =  new Update();
+        query =  new Query();
+        query.addCriteria(Criteria.where("_id").is(id));
+        return mongoTemplate.findById(id, Client.class, ConstantGeneral.COLLECTION_CLIENT);
+    }
 }
