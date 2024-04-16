@@ -40,7 +40,7 @@ public class ProductMovementServiceUtil {
         this.parameterRepository = parameterRepository;
     }
 
-    public Client productMovement(Client client, Movement movement, String cuenta)  throws Exception  {
+    public Client productMovement(Client client, Movement movement, String account)  throws Exception  {
 
         Client objClient = clientRepository.findById(client.getId());
 
@@ -49,7 +49,7 @@ public class ProductMovementServiceUtil {
                 Parameter parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
 
                 Optional<ProductSales> productSales = Optional.ofNullable(a.getProducts()).orElse(new ArrayList<>()).stream().filter(d ->
-                    d.getNumAccount().equals(cuenta)
+                    d.getNumAccount().equals(account)
                 ).findFirst();
 
                 if (productSales.isPresent()){
@@ -72,38 +72,28 @@ public class ProductMovementServiceUtil {
                         ).count();
 
                         BigDecimal factor = getFactorOperator(b.getIndTypeMovement());
+                        executePasiveAccountOperations(productSales.get(), param, b, a.getId());
 
-                        switch (productSales.get().getIndProduct()){
-                            case CODE_SAVINGSACCOUNT :
-
-                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
-
-                                if (b.getIndTypeMovement().equals(CODE_RETREAT) || b.getIndTypeMovement().equals(CODE_CONSUMPTION)){
-                                    if (b.getOperationAmount().compareTo(availableBalance) > 0) {
-                                        logger.warn(ERROR1005.getCode().concat(" - ").concat(ERROR1005.getDescription()));
-                                        throw new RuntimeException(ERROR1005.getDescription());
-                                    }
-                                    if (totalMovementsRetreat.compareTo(Integer.valueOf(param.getMovement().getRetreat())) >= 0) {
-                                        logger.warn(ERROR1004.getCode().concat(" - ").concat(ERROR1004.getDescription()));
-                                        throw new RuntimeException(ERROR1004.getDescription());
-                                    }
-                                }
-
-                                if (b.getIndTypeMovement().equals(CODE_DEPOSIT) || b.getIndTypeMovement().equals(CODE_PAYMENT)){
-                                    if (totalMovementsDeposit.compareTo(Integer.valueOf(param.getMovement().getDeposit())) >= 0) {
-                                        logger.warn(ERROR1003.getCode().concat(" - ").concat(ERROR1003.getDescription()));
-                                        throw new RuntimeException(ERROR1003.getDescription());
-                                    }
-                                }
-
-                                b.setResgistrationDate(new Date());
-                                BigDecimal operationAmount = new BigDecimal(b.getOperationAmount().multiply(factor).toString());
-                                BigDecimal newAvailable = productSales.get().getAvailableBalance().add(operationAmount);
-                                productSales.get().setAvailableBalance(newAvailable);
-                                productSales.get().setCountableBalance(newAvailable);
-                                clientRepository.addJointMovementToProductToClient(productSales.get(), a.getId(), b);
-                                break;
-                        }
+//                        switch (productSales.get().getIndProduct()){
+//                            case CODE_SAVINGSACCOUNT:
+//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
+//                                break;
+//                            case CODE_CURRENTACCOUNT:
+//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
+//                                break;
+//                            case CODE_FIXEDTERMACCOUNT:
+//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
+//                                break;
+//                            case CODE_PERSONALCREDIT:
+//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
+//                                break;
+//                            case CODE_COMMERCIALCREDIT:
+//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
+//                                break;
+//                            case CODE_CREDITCARD:
+//                                executePasiveAccountOperations(productSales.get(), param, b, a.getId());
+//                                break;
+//                        }
                     });
                 }else {
                     logger.warn(ERROR1006.getDescription().concat(" - ").concat(ERROR1006.getDescription()));
