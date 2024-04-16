@@ -4,6 +4,8 @@ package com.bootcamp51.microservices.productservice.service;
 import com.bootcamp51.microservices.productservice.model.Product;
 import com.bootcamp51.microservices.productservice.repository.ProductRepository;
 import org.bson.types.ObjectId;
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -15,7 +17,7 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface ProductService {
 
-    List<Product> findAllProduct();
+    Flux<Product> findAllProduct();
 
     default List<Product> findByDesProduct(ProductRepository productRepository, String desProduct){
         Function<String, List<Product>> function = productRepository::findByDesProduct;
