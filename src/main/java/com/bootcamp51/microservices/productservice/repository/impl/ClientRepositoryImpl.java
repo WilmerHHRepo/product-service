@@ -6,6 +6,7 @@ import com.bootcamp51.microservices.productservice.model.JointAccount;
 import com.bootcamp51.microservices.productservice.model.Movement;
 import com.bootcamp51.microservices.productservice.model.ProductSales;
 import com.bootcamp51.microservices.productservice.repository.ClientRepository;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,17 +16,19 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 @Repository
-public class ClientRepositoryImpl implements ClientRepository {
+public class ClientRepositoryImpl implements ClientRepository  {
 
-    private final MongoTemplate mongoTemplate;
+    private final  ReactiveMongoTemplate mongoTemplate;
+    private final  ReactiveMongoTemplate mongoTemplate1;
     private Query query;
     private Update update;
 
-    @Autowired
-    public ClientRepositoryImpl(MongoTemplate mongoTemplate) {
+    public ClientRepositoryImpl(ReactiveMongoTemplate mongoTemplate, ReactiveMongoTemplate mongoTemplate1) {
         this.mongoTemplate = mongoTemplate;
+        this.mongoTemplate1 = mongoTemplate1;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class ClientRepositoryImpl implements ClientRepository {
     }
 
     @Override
-    public void addJointMovementToProductToClient(ProductSales productSales, String id, Movement movement) {
+    public Mono<Client> addJointMovementToProductToClient(ProductSales productSales, String id, Movement movement) {
         update =  new Update();
         query =  new Query();
         query.addCriteria(Criteria.where("_id").is(id)
@@ -67,14 +70,6 @@ public class ClientRepositoryImpl implements ClientRepository {
         update.push("products.$.movements",movement)
                 .set("products.$.countableBalance", productSales.getCountableBalance())
                 .set("products.$.availableBalance", productSales.getAvailableBalance());
-        mongoTemplate.updateFirst(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
-    }
-
-    @Override
-    public Client findById(String id) {
-        update =  new Update();
-        query =  new Query();
-        query.addCriteria(Criteria.where("_id").is(id));
-        return mongoTemplate.findById(id, Client.class, ConstantGeneral.COLLECTION_CLIENT);
+        return mongoTemplate1.findAndModify(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
     }
 }

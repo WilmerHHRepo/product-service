@@ -10,14 +10,52 @@ import java.util.Date;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Commission extends Product {
-    @Id
-    private String id;
+    /**
+     * value numOperation.
+     */
+    private String numOperation;
+    /**
+     * value indTypeDocument.
+     */
+    private String indTypeDocument;
+    /**
+     * value desTypeDocument.
+     */
+    private String desTypeDocument;
+    /**
+     * value numDocument.
+     */
+    private String numDocument;
+    /**
+     * value indTypeMovement.
+     */
     private String indTypeMovement;
+    /**
+     * value desTypeMovement.
+     */
     private String desTypeMovement;
+    /**
+     * value numAccount.
+     */
     private String numAccount;
+    /**
+     * value availableBalance.
+     */
     private BigDecimal availableBalance;
+    /**
+     * value relativeAmount.
+     */
     private BigDecimal relativeAmount;
+    /**
+     * value operationAmount.
+     */
     private BigDecimal operationAmount;
+    /**
+     * value commission.
+     */
     private BigDecimal commission;
-    private Date resgistrationDate;
+    /**
+     * value registrationDate.
+     */
+    private Date registrationDate;
 }

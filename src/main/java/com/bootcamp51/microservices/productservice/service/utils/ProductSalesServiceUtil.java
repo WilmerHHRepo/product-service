@@ -21,11 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,13 +45,13 @@ public class ProductSalesServiceUtil {
         try {
             ProductSalesService<Client, ProductSales, JointAccount> exec = (b, c) -> {
                 Optional.ofNullable(b).ifPresent(e -> {
-                    Parameter Parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
+                    Mono<Parameter> Parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
 
                     List<ProductSales> productSalesList = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(f ->
                             e.getIndTypeProduct().equals(f.getIndTypeProduct()) && e.getIndProduct().equals(f.getIndProduct())
                     ).collect(Collectors.toList());
 
-                    Optional<RuleSales> RuleSales =  Optional.ofNullable(Parameter1001.getListParameter().getListRuleSales()).orElse(new ArrayList<>()).stream().filter(g ->
+                    Optional<RuleSales> RuleSales =  Optional.ofNullable(Objects.requireNonNull(Parameter1001.block()).getListParameter().getListRuleSales()).orElse(new ArrayList<>()).stream().filter(g ->
                             client.getIndTypeClient().equals(g.getIndTypeClient()) && e.getIndProduct().equals(g.getIndProduct())
                     ).findFirst();
                     if (RuleSales.isPresent()){

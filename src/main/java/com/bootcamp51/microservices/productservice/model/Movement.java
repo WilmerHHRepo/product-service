@@ -14,6 +14,7 @@ import java.util.Date;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Movement {
+    private String numOperation;
     private String indTypeMovement;
     private String desTypeMovement;
     private BigDecimal relativeAmount;

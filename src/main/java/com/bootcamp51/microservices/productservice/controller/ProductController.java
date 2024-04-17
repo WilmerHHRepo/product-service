@@ -7,14 +7,9 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -25,44 +20,46 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private ProductRepository productRepository;
-
     @GetMapping
-    public ResponseEntity<List<Product>> findAllclient() {
-        List<Product> lstProduct = productService.findAllProduct();
-        return new ResponseEntity<>(lstProduct, HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public Flux<Product> findAllProduct() {
+        //List<Product> lstProduct = productService.findAllProduct();
+        return productService.findAllProduct();
     }
 
     @GetMapping("/by-product/{product}")
-    public ResponseEntity<List<Product>> findByDesProduct(@PathVariable String product) {
-        List<Product> lstProduct = productService.findByDesProduct(productRepository, product);
-        return new ResponseEntity<>(lstProduct, HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public Flux<List<Product>> findByDesProduct(@PathVariable String product) {
+        //List<Product> lstProduct = productService.findByDesProduct(product);
+        return productService.findByDesProduct(product);
     }
 
 
     @GetMapping("/by-id/{id}")
-    public ResponseEntity<Product> findById(@PathVariable String id) {
-        Product product = productService.findById(productRepository, id);
-        return new ResponseEntity<>(product, HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Product> findById(@PathVariable String id) {
+        //Product product = productService.findById(id);
+        return productService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        product = productService.createProduct(productRepository, product);
-        return new ResponseEntity<>(product, HttpStatus.ACCEPTED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Product> createProduct(@RequestBody Product product) {
+        //product = productService.createProduct(product);
+        return productService.createProduct(product);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
+    @ResponseStatus(HttpStatus.UPGRADE_REQUIRED)
+    public Mono<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
         ObjectId objectId = new ObjectId(id);
-        product.setId(id);
-        return new ResponseEntity<>(product, HttpStatus.ACCEPTED);
+        return productService.createProduct(product);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable String id) {
-        Product product = productService.deleteProduct(productRepository, id);
-        return new ResponseEntity<>(product, HttpStatus.ACCEPTED);
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Mono<Product> deleteProduct(@PathVariable String id) {
+        //Product product = productService.deleteProduct(productRepository, id);
+        return productService.deleteProduct(id);
     }
 }

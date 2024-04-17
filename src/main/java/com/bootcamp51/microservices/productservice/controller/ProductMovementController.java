@@ -24,7 +24,7 @@ public class ProductMovementController {
 
     @PatchMapping("/{cuenta}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Mono<Movement> productMovement(@RequestBody ProductMovementDTO productMovementRequest, @PathVariable String cuenta)  throws Exception  {
+    public Movement productMovement(@RequestBody ProductMovementDTO productMovementRequest, @PathVariable String cuenta)  throws Exception  {
         Client client = productMovementRequest.getClient();
         Movement movement = productMovementRequest.getMovement();
         AtomicReference<Movement> mov = new AtomicReference<>(new Movement());
@@ -38,7 +38,13 @@ public class ProductMovementController {
                     }
                 }
         );
-        return Mono.just(mov.get());
+        return mov.get();
     }
+
+
+    
+
+
+
 
 }

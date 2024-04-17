@@ -13,9 +13,12 @@ import com.bootcamp51.microservices.productservice.repository.ClientRepository;
 import com.bootcamp51.microservices.productservice.repository.CommissionRepository;
 import com.bootcamp51.microservices.productservice.repository.ParameterRepository;
 import com.bootcamp51.microservices.productservice.service.ProductMovementService;
+import static com.bootcamp51.microservices.productservice.utils.Utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import static com.bootcamp51.microservices.productservice.enums.EnumErrorMenssage.*;
 import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.*;
@@ -36,79 +39,55 @@ public class ProductMovementServiceUtil {
 
     private final CommissionRepository commissionRepository;
 
-    public ProductMovementServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository, CommissionRepository commissionRepository, ApiClient apiClient) {
+    public ProductMovementServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository, CommissionRepository commissionRepository) throws Exception {
         this.clientRepository = clientRepository;
         this.parameterRepository = parameterRepository;
         this.commissionRepository = commissionRepository;
     }
 
     public Movement productMovement(Client client, Movement movement, String account)  throws Exception  {
-        AtomicReference<Movement> mov = new AtomicReference<>(new Movement());
 
-        ProductMovementService<Movement, Client, Movement> exec = (a, b) -> {
-            Optional.ofNullable(b).ifPresent( c -> {
-                Parameter parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
+        try{
+            AtomicReference<Movement> mov = new AtomicReference<>(new Movement());
+            ProductMovementService<Movement, Client, Movement> exec = (a, b) -> {
+                Optional.ofNullable(b).ifPresent( c -> {
+                    Mono<Parameter> parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
 
-                Optional<ProductSales> productMovement = Optional.ofNullable(a.getProducts()).orElse(new ArrayList<>()).stream().filter(d ->
-                    d.getNumAccount().equals(account)
-                ).findFirst();
-                if (productMovement.isPresent()){
-                    Optional.ofNullable(parameter1001.getListParameter().getListRuleMovement()).orElse(new ArrayList<>()).stream().filter(e ->
-                            a.getIndTypeClient().equals(e.getIndTypeClient()) && productMovement.get().getIndProduct().equals(e.getIndProduct())
-                    ).findFirst().ifPresent(ruleMovement -> {
-                        mov.set(executeAccountOperations(productMovement.get(), ruleMovement, b, a.getId()));
+                    parameter1001.subscribe(param -> {
+                        Optional<ProductSales> productMovement = Optional.ofNullable(a.getProducts()).orElse(new ArrayList<>()).stream().filter(d ->
+                                d.getNumAccount().equals(account)
+                        ).findFirst();
+                        if (productMovement.isPresent()){
+                            Optional.ofNullable(param.getListParameter().getListRuleMovement()).orElse(new ArrayList<>()).stream().filter(e ->
+                                    a.getIndTypeClient().equals(e.getIndTypeClient()) && productMovement.get().getIndProduct().equals(e.getIndProduct())
+                            ).findFirst().ifPresent(ruleMovement -> {
+                                mov.set(executeAccountOperations(productMovement.get(), ruleMovement, b, a));
+                            });
+                        } else {
+                            logger.warn(ERROR1006.getDescription().concat(" - ").concat(ERROR1006.getDescription()));
+                            throw new RuntimeException(ERROR1006.getDescription());
+                        }
                     });
-                }else {
-                    logger.warn(ERROR1006.getDescription().concat(" - ").concat(ERROR1006.getDescription()));
-                    throw new RuntimeException(ERROR1006.getDescription());
-                }
-            });
-            //return clientRepository.findById(a.getId());
-            return mov.get();
-        };
-        return exec.execute(client, movement);
-    }
-
-
-    private BigDecimal getFactorOperator(String typeMovement){
-        BigDecimal factor = new BigDecimal(FACTOR_POSITIVE);
-        switch (typeMovement){
-            case CODE_DEPOSIT:
-                factor = new BigDecimal(FACTOR_POSITIVE);
-                break;
-            case CODE_RETREAT:
-                factor = new BigDecimal(FACTOR_NEGATIVE);
-                break;
-            case CODE_PAYMENT:
-                factor = new BigDecimal(FACTOR_POSITIVE);
-                break;
-            case CODE_CONSUMPTION:
-                factor = new BigDecimal(FACTOR_NEGATIVE);
-                break;
+                });
+                //return clientRepository.findById(a.getId());
+                return mov.get();
+            };
+            return exec.execute(client, movement);
+        }catch (Exception e){
+            logger.error("ERROR: {}", e.getMessage());
+            throw new Exception(e);
         }
-        return factor;
-    }
 
-    private Date getFirstDay(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        return calendar.getTime();
 
     }
 
-    private Date getLastDay(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        return calendar.getTime();
-    }
-
-    private Movement executeAccountOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement, String id) {
+    private Movement executeAccountOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement, Client client) {
 
         BigDecimal availableBalance = productMovement.getAvailableBalance();
         BigDecimal countableBalance = productMovement.getCountableBalance();
         Date lastDay = getLastDay();
         Date FirstDay = getFirstDay();
-
+        movement.setNumOperation(getNumberOperation());
         Integer totalMovementsDeposit = (int)Optional.ofNullable(productMovement.getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
                 g.getIndTypeMovement().equals(EnumTypeMovement.DEPOSITO.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
         ).count();
@@ -128,7 +107,7 @@ public class ProductMovementServiceUtil {
                 movement.setRelativeAmount(movement.getOperationAmount()); /// elq ue se entrega al client
                 movement.setOperationAmount(movement.getRelativeAmount().add(new BigDecimal(ruleMovement.getCommission())));  // el que se cobra de la cuenta
                 movement.setCommission(new BigDecimal(ruleMovement.getCommission()));
-                executeCommissionOperations(productMovement, ruleMovement, movement);
+                executeCommissionOperations(productMovement, ruleMovement, movement, client);
                 //throw new RuntimeException(ERROR1004.getDescription());
             }
         }
@@ -138,6 +117,7 @@ public class ProductMovementServiceUtil {
                 logger.warn(ERROR1003.getCode().concat(" - ").concat(ERROR1003.getDescription()));
                 movement.setRelativeAmount(movement.getOperationAmount().subtract(new BigDecimal(ruleMovement.getCommission()))); /// elq ue se entrega al client
                 movement.setCommission(new BigDecimal(ruleMovement.getCommission()));
+                executeCommissionOperations(productMovement, ruleMovement, movement, client);
                 //throw new RuntimeException(ERROR1003.getDescription());
             }
         }
@@ -147,16 +127,20 @@ public class ProductMovementServiceUtil {
         BigDecimal newAvailable = productMovement.getAvailableBalance().add(operationAmount);
         productMovement.setAvailableBalance(newAvailable);
         productMovement.setCountableBalance(newAvailable);
-        clientRepository.addJointMovementToProductToClient(productMovement, id, movement);
+        clientRepository.addJointMovementToProductToClient(productMovement, client.getId(), movement).subscribe(System.out::println);
         return movement;
     }
 
-    private void executeCommissionOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement) {
+    private void executeCommissionOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement, Client client) {
         Commission commission =  new Commission();
+        commission.setNumOperation(movement.getNumOperation());
         commission.setIndTypeProduct(productMovement.getIndTypeProduct());
         commission.setDesTypeProduct(productMovement.getDesTypeProduct());
         commission.setIndProduct(productMovement.getIndProduct());
         commission.setDesProduct(productMovement.getDesProduct());
+        commission.setIndTypeDocument(client.getIndTypeDocument());
+        commission.setDesTypeDocument(client.getDesTypeDocument());
+        commission.setNumDocument(client.getNumDocument());
         commission.setIndTypeMovement(movement.getIndTypeMovement());
         commission.setDesTypeMovement(movement.getDesTypeMovement());
         commission.setNumAccount(productMovement.getNumAccount());
@@ -164,8 +148,8 @@ public class ProductMovementServiceUtil {
         commission.setRelativeAmount(movement.getRelativeAmount());
         commission.setOperationAmount(movement.getOperationAmount());
         commission.setCommission(new BigDecimal(ruleMovement.getCommission()));
-        commission.setResgistrationDate(new Date());
-        commissionRepository.save(commission);
+        commission.setRegistrationDate(new Date());
+        commissionRepository.save(commission).subscribe(System.out::println);;
     }
 
 
