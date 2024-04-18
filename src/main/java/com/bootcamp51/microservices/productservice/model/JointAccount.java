@@ -1,39 +1,39 @@
 package com.bootcamp51.microservices.productservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * Class JointAccount model.
+ * author by Wilmer H.
  */
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JointAccount {
   /**
-   * valor members.
+   * value members.
    */
   private String[] members;
   /**
-   * valor indProduct.
+   * value indProduct.
    */
   private String indProduct;
   /**
-   * valor desProduct.
+   * value desProduct.
    */
   private String desProduct;
   /**
-   * valor numAccount.
+   * value numAccount.
    */
   private String numAccount;
   /**
-   * valor ownerCode.
+   * value ownerCode.
    */
   private String ownerCode;
   /**
-   * valor signerCode.
+   * value signerCode.
    */
   private String signerCode;
 }

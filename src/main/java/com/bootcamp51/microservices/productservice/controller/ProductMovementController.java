@@ -48,22 +48,34 @@ public class ProductMovementController {
     /**
      * REST transferBetweenAccounts.
      *
+     * @param movement for movement
+     * @param origin for Origin Account
+     * @param destination for destination Account
+     * @param document for number document client
      * @return Movement
      * @throws Exception for error
      */
-    @PatchMapping("/by-between/{origin}/and/{destination}")
-    public ResponseEntity<Movement> transferBetweenAccounts(
+    @PatchMapping("/by-between-client/{origin}/and/{destination}")
+    public ResponseEntity<Movement> transferBetweenAccountsClient(
             @RequestBody Movement movement,
             @PathVariable String origin,
             @PathVariable String destination,
             @PathParam("document") String document) throws Exception {
-
-
-
-        return null;
+        movement = productMovementServiceUtil.transferBetweenAccountsClient(movement, origin, destination, document);
+        return new ResponseEntity<>(movement, HttpStatus.ACCEPTED);
     }
 
-
+    @PatchMapping("/by-between-third-parties/{origin}/and/{destination}")
+    public ResponseEntity<Movement> transferBetweenAccountsThirdParties(
+            @RequestBody Movement movement,
+            @PathVariable String origin,
+            @PathVariable String destination,
+            @PathParam("originDocument") String originDocument,
+            @PathParam("destinationDocument") String destinationDocument
+            ) throws Exception {
+        movement = productMovementServiceUtil.transferBetweenAccountsThirdParties(movement, origin, destination, originDocument, destinationDocument);
+        return new ResponseEntity<>(movement, HttpStatus.ACCEPTED);
+    }
 
 
 

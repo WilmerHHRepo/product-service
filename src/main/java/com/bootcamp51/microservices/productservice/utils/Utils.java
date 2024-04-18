@@ -5,6 +5,9 @@ import com.bootcamp51.microservices.productservice.model.ProductSales;
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.FACTOR_POSITIVE;
@@ -18,9 +21,9 @@ import static com.bootcamp51.microservices.productservice.constant.ConstantGener
 public class Utils {
 
     public static String getNumberOperation(){
-        Random random = new Random();
-        int randomNumber = 10000000 * random.nextInt(90000000);
-        return String.valueOf(ArithmeticOperators.Abs.absoluteValueOf(randomNumber));
+        LocalDateTime currentDate =  LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return currentDate.format(formatter);
     }
 
     public static Date getFirstDay(){

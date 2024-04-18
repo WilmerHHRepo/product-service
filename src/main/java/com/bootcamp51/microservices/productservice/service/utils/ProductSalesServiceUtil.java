@@ -76,7 +76,7 @@ public class ProductSalesServiceUtil {
                     client.setProducts(new ArrayList<>());
                     client.getProducts().add(e);
                     clientRepository.addProductToClient(e, client.getId()).subscribe(System.out::println);
-                    if (e.getIndProduct().equals(COMMERCIALCREDIT.getCode()) && client.getIndTypeClient().equals(COMPANY.getCode())) {
+                    if (e.getIndProduct().equals(COMMERCIAL_CREDIT.getCode()) && client.getIndTypeClient().equals(COMPANY.getCode())) {
                         Optional.ofNullable(c.getMembers()).ifPresent(members -> {
                             for (String m: members){
                                 clientRepository.addProductToClient(e, m).subscribe(System.out::println);

@@ -18,9 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import javax.swing.text.html.Option;
-
 import static com.bootcamp51.microservices.productservice.enums.EnumErrorMenssage.*;
 import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.*;
 import java.math.BigDecimal;
@@ -84,66 +81,53 @@ public class ProductMovementServiceUtil {
     }
 
 
-    public Movement transferBetweenAccounts(Movement movement, String origin, String destination, String document) throws Exception{
+    public Movement transferBetweenAccountsClient(Movement movement, String originAccount, String destinationAccount, String document) throws Exception {
         try{
             ProductMovementService<Movement> exec = (a) ->{
                 Mono<Client> monoClient = apiClient.findByDocument(document);
                 Client client = Objects.requireNonNull(monoClient.doOnSubscribe(System.out::println).block());
 
                 Optional<ProductSales> productSalesDestination = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
-                        productOrigin.getNumAccount().equals(destination)
+                        productOrigin.getNumAccount().equals(destinationAccount)
                 ).findFirst();
                 if (!productSalesDestination.isPresent()) {
                     logger.warn(ERROR1007.getDescription().concat(" - ").concat(ERROR1007.getDescription()));
                     throw new RuntimeException(ERROR1007.getDescription());
                 }
 
-                Mono<Parameter> parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
-                Parameter param = Objects.requireNonNull(parameter1001.doOnSubscribe(System.out::println).block());
-                Optional<ProductSales> productSalesOrigin = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
-                        productOrigin.getNumAccount().equals(origin)
+                Optional<ProductSales> productSalesOrigin = Optional.of(client.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
+                        productOrigin.getNumAccount().equals(originAccount)
                 ).findFirst();
+
+                movement.setNumOperation(Utils.getNumberOperation());
+                movement.setResgistrationDate(new Date());
+                movement.setOriginAccount(originAccount);
+                movement.setDestinationAccount(destinationAccount);
+
                 if (productSalesOrigin.isPresent()) {
-                    // OPERATION OF ORIGIN
                     BigDecimal availableBalance = productSalesOrigin.get().getAvailableBalance();
-                    Integer totalMovementsDeposit = Utils.getTotalMovementsDeposit(productSalesOrigin.get());
-                    Integer totalMovementsRetreat = Utils.getTotalMovementsRetreat(productSalesOrigin.get());
-
-                    movement.setNumOperation(Utils.getNumberOperation());
-
                     if (movement.getOperationAmount().compareTo(availableBalance) > 0) {
                         logger.warn(ERROR1005.getCode().concat(" - ").concat(ERROR1005.getDescription()));
                         throw new RuntimeException(ERROR1005.getDescription());
                     }
                     BigDecimal factor = Utils.getFactorOperator(CODE_RETREAT);
-
-
-                    movement.setResgistrationDate(new Date());
                     BigDecimal operationAmount = new BigDecimal(movement.getOperationAmount().multiply(factor).toString());
                     BigDecimal newAvailable = productSalesOrigin.get().getAvailableBalance().add(operationAmount);
-                    /// mov.set(executeAccountOperations(productMovement.get(), ruleMovement, b, client));
-
-
-
+                    productSalesOrigin.get().setAvailableBalance(newAvailable);
+                    productSalesOrigin.get().setCountableBalance(newAvailable);
+                    clientRepository.addJointMovementToProductToClient(productSalesOrigin.get(), client.getId(), movement).subscribe(System.out::println);
                 } else {
                     logger.warn(ERROR1005.getDescription().concat(" - ").concat(ERROR1005.getDescription()));
                     throw new RuntimeException(ERROR1005.getDescription());
                 }
-
-
-
-
-
-
-
-
-
-
-
-
-                return null;
+                BigDecimal factor = Utils.getFactorOperator(CODE_PAYMENT);
+                BigDecimal operationAmount = new BigDecimal(movement.getOperationAmount().multiply(factor).toString());
+                BigDecimal newAvailable = productSalesDestination.get().getAvailableBalance().add(operationAmount);
+                productSalesDestination.get().setAvailableBalance(newAvailable);
+                productSalesDestination.get().setCountableBalance(newAvailable);
+                clientRepository.addJointMovementToProductToClient(productSalesDestination.get(), client.getId(), movement).subscribe(System.out::println);
+                return movement;
             };
-
             return exec.execute(movement);
         }catch (Exception e){
             logger.error("ERROR: {}", e.getMessage());
@@ -152,8 +136,62 @@ public class ProductMovementServiceUtil {
 
     }
 
+    public Movement transferBetweenAccountsThirdParties(Movement movement, String originAccount, String destinationAccount, String originDocument, String destinationDocument) throws Exception {
+        try {
+            ProductMovementService<Movement> exec = (a) ->{
+                Mono<Client> monoOriginclient = apiClient.findByDocument(originDocument);
+                Mono<Client> monoDestinationclient = apiClient.findByDocument(destinationDocument);
+                Client originClient = Objects.requireNonNull(monoOriginclient.doOnSubscribe(System.out::println).block());
+                Client destinationClient = Objects.requireNonNull(monoDestinationclient.doOnSubscribe(System.out::println).block());
 
+                Optional<ProductSales> productSalesDestination = Optional.ofNullable(destinationClient.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
+                        productOrigin.getNumAccountCodeInterbank().equals(destinationAccount)
+                ).findFirst();
+                if (!productSalesDestination.isPresent()) {
+                    logger.warn(ERROR1007.getDescription().concat(" - ").concat(ERROR1007.getDescription()));
+                    throw new RuntimeException(ERROR1007.getDescription());
+                }
 
+                Optional<ProductSales> productSalesOrigin = Optional.of(originClient.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
+                        productOrigin.getNumAccount().equals(originAccount)
+                ).findFirst();
+
+                movement.setNumOperation(Utils.getNumberOperation());
+                movement.setResgistrationDate(new Date());
+                movement.setOriginAccount(originAccount);
+                movement.setDestinationAccount(destinationAccount);
+
+                if (productSalesOrigin.isPresent()) {
+                    BigDecimal availableBalance = productSalesOrigin.get().getAvailableBalance();
+                    if (movement.getOperationAmount().compareTo(availableBalance) > 0) {
+                        logger.warn(ERROR1005.getCode().concat(" - ").concat(ERROR1005.getDescription()));
+                        throw new RuntimeException(ERROR1005.getDescription());
+                    }
+                    BigDecimal factor = Utils.getFactorOperator(CODE_RETREAT);
+                    BigDecimal operationAmount = new BigDecimal(movement.getOperationAmount().multiply(factor).toString());
+                    BigDecimal newAvailable = productSalesOrigin.get().getAvailableBalance().add(operationAmount);
+                    productSalesOrigin.get().setAvailableBalance(newAvailable);
+                    productSalesOrigin.get().setCountableBalance(newAvailable);
+                    clientRepository.addJointMovementToProductToClient(productSalesOrigin.get(), originClient.getId(), movement).subscribe(System.out::println);
+                } else {
+                    logger.warn(ERROR1005.getDescription().concat(" - ").concat(ERROR1005.getDescription()));
+                    throw new RuntimeException(ERROR1005.getDescription());
+                }
+                BigDecimal factor = Utils.getFactorOperator(CODE_PAYMENT);
+                BigDecimal operationAmount = new BigDecimal(movement.getOperationAmount().multiply(factor).toString());
+                BigDecimal newAvailable = productSalesDestination.get().getAvailableBalance().add(operationAmount);
+                productSalesDestination.get().setAvailableBalance(newAvailable);
+                productSalesDestination.get().setCountableBalance(newAvailable);
+                clientRepository.addJointMovementToProductToClient(productSalesDestination.get(), destinationClient.getId(), movement).subscribe(System.out::println);
+
+                return movement;
+            };
+            return exec.execute(movement);
+        } catch (Exception e) {
+            logger.error("ERROR: {}", e.getMessage());
+            throw new Exception(e);
+        }
+    }
 
 
     private Movement executeAccountOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement, Client client) {
