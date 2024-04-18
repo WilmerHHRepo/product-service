@@ -4,10 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum EnumTypeMovement {
-    DEPOSITO("1","Savings Account"),
-    RETIRO("2","Current Account"),
-    PAGO("3","Fixed Term Account"),
-    CONSUMO("4","Personal Credit");
+    DEPOSIT("1","Deposit"),
+    RETREAT("2","Retreat"),
+    PAYMENT("3","Payment"),
+    CONSUMPTION("4","Consumption"),
+    TRANSFER_BETWEEN_CLIENT_ACCOUNTS("5","Transfer between client accounts"),
+    TRANSFER_BETWEEN_ACCOUNTS_THIRD_PARTIES("6","Transfer between accounts to third parties")
+
+    ;
     private String code;
     private String description;
     EnumTypeMovement(String code, String description) {

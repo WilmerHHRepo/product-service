@@ -7,6 +7,8 @@ import static com.bootcamp51.microservices.productservice.enums.EnumProduct.*;
 import static com.bootcamp51.microservices.productservice.enums.EnumTypeClient.*;
 
 import static com.bootcamp51.microservices.productservice.enums.EnumErrorMenssage.*;
+
+import com.bootcamp51.microservices.productservice.client.ApiClient;
 import com.bootcamp51.microservices.productservice.model.Client;
 import com.bootcamp51.microservices.productservice.model.JointAccount;
 import com.bootcamp51.microservices.productservice.model.ProductSales;
@@ -36,22 +38,27 @@ public class ProductSalesServiceUtil {
 
     private final ClientRepository clientRepository;
 
-    public ProductSalesServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository) {
+    private final ApiClient apiClient;
+
+    public ProductSalesServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository, ApiClient apiClient) {
         this.clientRepository = clientRepository;
         this.parameterRepository = parameterRepository;
+        this.apiClient = apiClient;
     }
 
-    public Client productSales(Client client, ProductSales newProductSales, JointAccount jointAccount) throws Exception {
+    public Client productSales(ProductSales newProductSales, JointAccount jointAccount, String document) throws Exception {
         try {
             ProductSalesService<Client, ProductSales, JointAccount> exec = (b, c) -> {
+                Mono<Client> monoClient = apiClient.findByDocument(document);
+                Client client = monoClient.doOnSubscribe(System.out::println).block();
                 Optional.ofNullable(b).ifPresent(e -> {
-                    Mono<Parameter> Parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
-
-                    List<ProductSales> productSalesList = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(f ->
+                    Mono<Parameter> parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
+                    Parameter param = parameter1001.doOnSubscribe(System.out::println).block();
+                    List<ProductSales> productSalesList = Optional.ofNullable(Objects.requireNonNull(client).getProducts()).orElse(new ArrayList<>()).stream().filter(f ->
                             e.getIndTypeProduct().equals(f.getIndTypeProduct()) && e.getIndProduct().equals(f.getIndProduct())
                     ).collect(Collectors.toList());
 
-                    Optional<RuleSales> RuleSales =  Optional.ofNullable(Objects.requireNonNull(Parameter1001.block()).getListParameter().getListRuleSales()).orElse(new ArrayList<>()).stream().filter(g ->
+                    Optional<RuleSales> RuleSales =  Optional.ofNullable(Objects.requireNonNull(param).getListParameter().getListRuleSales()).orElse(new ArrayList<>()).stream().filter(g ->
                             client.getIndTypeClient().equals(g.getIndTypeClient()) && e.getIndProduct().equals(g.getIndProduct())
                     ).findFirst();
                     if (RuleSales.isPresent()){
@@ -65,13 +72,14 @@ public class ProductSalesServiceUtil {
                         logger.warn(ERROR1002.getDescription().concat(" - ").concat(ERROR1002.getDescription()));
                         throw new RuntimeException(ERROR1002.getDescription());
                     }
+
                     client.setProducts(new ArrayList<>());
                     client.getProducts().add(e);
-                    clientRepository.addProductToClient(e, client.getId());
+                    clientRepository.addProductToClient(e, client.getId()).subscribe(System.out::println);
                     if (e.getIndProduct().equals(COMMERCIALCREDIT.getCode()) && client.getIndTypeClient().equals(COMPANY.getCode())) {
                         Optional.ofNullable(c.getMembers()).ifPresent(members -> {
                             for (String m: members){
-                                clientRepository.addProductToClient(e, m);
+                                clientRepository.addProductToClient(e, m).subscribe(System.out::println);
                                 clientRepository.addJointAccountToProductToClient(b, m, c);
                             }
                             clientRepository.addJointAccountToProductToClient(b, client.getId(), c);
@@ -83,7 +91,7 @@ public class ProductSalesServiceUtil {
             return exec.execute(newProductSales, jointAccount);
 
         }catch (Exception e){
-            logger.error("ERROR: " + e.getMessage());
+            logger.error("ERROR: {}", e.getMessage());
             throw new Exception(e);
         }
 

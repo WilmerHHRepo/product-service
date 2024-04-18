@@ -13,12 +13,13 @@ import com.bootcamp51.microservices.productservice.repository.ClientRepository;
 import com.bootcamp51.microservices.productservice.repository.CommissionRepository;
 import com.bootcamp51.microservices.productservice.repository.ParameterRepository;
 import com.bootcamp51.microservices.productservice.service.ProductMovementService;
-import static com.bootcamp51.microservices.productservice.utils.Utils.*;
+import com.bootcamp51.microservices.productservice.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import javax.swing.text.html.Option;
 
 import static com.bootcamp51.microservices.productservice.enums.EnumErrorMenssage.*;
 import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.*;
@@ -39,65 +40,132 @@ public class ProductMovementServiceUtil {
 
     private final CommissionRepository commissionRepository;
 
-    public ProductMovementServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository, CommissionRepository commissionRepository) throws Exception {
+    private final ApiClient apiClient;
+
+
+    public ProductMovementServiceUtil(ClientRepository clientRepository, ParameterRepository parameterRepository, CommissionRepository commissionRepository, ApiClient apiClient) throws Exception {
         this.clientRepository = clientRepository;
         this.parameterRepository = parameterRepository;
         this.commissionRepository = commissionRepository;
+        this.apiClient = apiClient;
     }
 
-    public Movement productMovement(Client client, Movement movement, String account)  throws Exception  {
+    public Movement productMovement(Movement movement, String account) throws Exception  {
 
         try{
-            AtomicReference<Movement> mov = new AtomicReference<>(new Movement());
-            ProductMovementService<Movement, Client, Movement> exec = (a, b) -> {
+            ProductMovementService<Movement> exec = (b) -> {
+                AtomicReference<Movement> mov = new AtomicReference<>(new Movement());
+                Mono<Client> monoClient = apiClient.findByAccount(account);
+                Client client = monoClient.doOnSubscribe(System.out::println).block();
                 Optional.ofNullable(b).ifPresent( c -> {
                     Mono<Parameter> parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
-
-                    parameter1001.subscribe(param -> {
-                        Optional<ProductSales> productMovement = Optional.ofNullable(a.getProducts()).orElse(new ArrayList<>()).stream().filter(d ->
-                                d.getNumAccount().equals(account)
-                        ).findFirst();
-                        if (productMovement.isPresent()){
-                            Optional.ofNullable(param.getListParameter().getListRuleMovement()).orElse(new ArrayList<>()).stream().filter(e ->
-                                    a.getIndTypeClient().equals(e.getIndTypeClient()) && productMovement.get().getIndProduct().equals(e.getIndProduct())
-                            ).findFirst().ifPresent(ruleMovement -> {
-                                mov.set(executeAccountOperations(productMovement.get(), ruleMovement, b, a));
-                            });
-                        } else {
-                            logger.warn(ERROR1006.getDescription().concat(" - ").concat(ERROR1006.getDescription()));
-                            throw new RuntimeException(ERROR1006.getDescription());
-                        }
-                    });
+                    Parameter param = parameter1001.doOnSubscribe(System.out::println).block();
+                    Optional<ProductSales> productMovement = Optional.ofNullable(Objects.requireNonNull(client).getProducts()).orElse(new ArrayList<>()).stream().filter(d ->
+                            d.getNumAccount().equals(account)
+                    ).findFirst();
+                    if (productMovement.isPresent()){
+                        Optional.ofNullable(Objects.requireNonNull(param).getListParameter().getListRuleMovement()).orElse(new ArrayList<>()).stream().filter(e ->
+                                client.getIndTypeClient().equals(e.getIndTypeClient()) && productMovement.get().getIndProduct().equals(e.getIndProduct())
+                        ).findFirst().ifPresent(ruleMovement -> {
+                            mov.set(executeAccountOperations(productMovement.get(), ruleMovement, b, client));
+                        });
+                    } else {
+                        logger.warn(ERROR1006.getDescription().concat(" - ").concat(ERROR1006.getDescription()));
+                        throw new RuntimeException(ERROR1006.getDescription());
+                    }
                 });
-                //return clientRepository.findById(a.getId());
                 return mov.get();
             };
-            return exec.execute(client, movement);
+            return exec.execute(movement);
+        }catch (Exception e){
+            logger.error("ERROR: {}", e.getMessage());
+            throw new Exception(e);
+        }
+    }
+
+
+    public Movement transferBetweenAccounts(Movement movement, String origin, String destination, String document) throws Exception{
+        try{
+            ProductMovementService<Movement> exec = (a) ->{
+                Mono<Client> monoClient = apiClient.findByDocument(document);
+                Client client = Objects.requireNonNull(monoClient.doOnSubscribe(System.out::println).block());
+
+                Optional<ProductSales> productSalesDestination = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
+                        productOrigin.getNumAccount().equals(destination)
+                ).findFirst();
+                if (!productSalesDestination.isPresent()) {
+                    logger.warn(ERROR1007.getDescription().concat(" - ").concat(ERROR1007.getDescription()));
+                    throw new RuntimeException(ERROR1007.getDescription());
+                }
+
+                Mono<Parameter> parameter1001 =  parameterRepository.findByCodParameter(CODE_PARAMETER_1001);
+                Parameter param = Objects.requireNonNull(parameter1001.doOnSubscribe(System.out::println).block());
+                Optional<ProductSales> productSalesOrigin = Optional.ofNullable(client.getProducts()).orElse(new ArrayList<>()).stream().filter(productOrigin ->
+                        productOrigin.getNumAccount().equals(origin)
+                ).findFirst();
+                if (productSalesOrigin.isPresent()) {
+                    // OPERATION OF ORIGIN
+                    BigDecimal availableBalance = productSalesOrigin.get().getAvailableBalance();
+                    Integer totalMovementsDeposit = Utils.getTotalMovementsDeposit(productSalesOrigin.get());
+                    Integer totalMovementsRetreat = Utils.getTotalMovementsRetreat(productSalesOrigin.get());
+
+                    movement.setNumOperation(Utils.getNumberOperation());
+
+                    if (movement.getOperationAmount().compareTo(availableBalance) > 0) {
+                        logger.warn(ERROR1005.getCode().concat(" - ").concat(ERROR1005.getDescription()));
+                        throw new RuntimeException(ERROR1005.getDescription());
+                    }
+                    BigDecimal factor = Utils.getFactorOperator(CODE_RETREAT);
+
+
+                    movement.setResgistrationDate(new Date());
+                    BigDecimal operationAmount = new BigDecimal(movement.getOperationAmount().multiply(factor).toString());
+                    BigDecimal newAvailable = productSalesOrigin.get().getAvailableBalance().add(operationAmount);
+                    /// mov.set(executeAccountOperations(productMovement.get(), ruleMovement, b, client));
+
+
+
+                } else {
+                    logger.warn(ERROR1005.getDescription().concat(" - ").concat(ERROR1005.getDescription()));
+                    throw new RuntimeException(ERROR1005.getDescription());
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+                return null;
+            };
+
+            return exec.execute(movement);
         }catch (Exception e){
             logger.error("ERROR: {}", e.getMessage());
             throw new Exception(e);
         }
 
-
     }
 
+
+
+
+
     private Movement executeAccountOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement, Client client) {
-
         BigDecimal availableBalance = productMovement.getAvailableBalance();
-        BigDecimal countableBalance = productMovement.getCountableBalance();
-        Date lastDay = getLastDay();
-        Date FirstDay = getFirstDay();
-        movement.setNumOperation(getNumberOperation());
-        Integer totalMovementsDeposit = (int)Optional.ofNullable(productMovement.getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
-                g.getIndTypeMovement().equals(EnumTypeMovement.DEPOSITO.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
-        ).count();
-        Integer totalMovementsRetreat = (int)Optional.ofNullable(productMovement.getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
-                g.getIndTypeMovement().equals(EnumTypeMovement.RETIRO.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
-        ).count();
+        Date lastDay = Utils.getLastDay();
+        Date FirstDay = Utils.getFirstDay();
+        movement.setNumOperation(Utils.getNumberOperation());
+        Integer totalMovementsDeposit = Utils.getTotalMovementsDeposit(productMovement);
+        Integer totalMovementsRetreat = Utils.getTotalMovementsRetreat(productMovement);
+        BigDecimal factor = Utils.getFactorOperator(movement.getIndTypeMovement());
 
-        BigDecimal factor = getFactorOperator(movement.getIndTypeMovement());
-
-        if (movement.getIndTypeMovement().equals(CODE_RETREAT) || movement.getIndTypeMovement().equals(CODE_CONSUMPTION)) {
+        if (movement.getIndTypeMovement().equals(EnumTypeMovement.RETREAT.getCode()) || movement.getIndTypeMovement().equals(EnumTypeMovement.CONSUMPTION.getCode())) {
             if (movement.getOperationAmount().compareTo(availableBalance) > 0) {
                 logger.warn(ERROR1005.getCode().concat(" - ").concat(ERROR1005.getDescription()));
                 throw new RuntimeException(ERROR1005.getDescription());
@@ -112,7 +180,7 @@ public class ProductMovementServiceUtil {
             }
         }
 
-        if (movement.getIndTypeMovement().equals(CODE_DEPOSIT) || movement.getIndTypeMovement().equals(CODE_PAYMENT)) {
+        if (movement.getIndTypeMovement().equals(EnumTypeMovement.DEPOSIT.getCode()) || movement.getIndTypeMovement().equals(EnumTypeMovement.PAYMENT.getCode())) {
             if (totalMovementsDeposit.compareTo(Integer.valueOf(ruleMovement.getMovement().getDeposit())) >= 0) {
                 logger.warn(ERROR1003.getCode().concat(" - ").concat(ERROR1003.getDescription()));
                 movement.setRelativeAmount(movement.getOperationAmount().subtract(new BigDecimal(ruleMovement.getCommission()))); /// elq ue se entrega al client

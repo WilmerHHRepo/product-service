@@ -32,13 +32,13 @@ public class ClientRepositoryImpl implements ClientRepository  {
     }
 
     @Override
-    public void addProductToClient(ProductSales newProductSales, String id) {
+    public Mono<Client> addProductToClient(ProductSales newProductSales, String id) {
         update =  new Update();
         query =  new Query();
         query.addCriteria(Criteria.where("_id").is(id)
         );
         update.push("products",newProductSales);
-        mongoTemplate.updateFirst(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
+        return mongoTemplate1.findAndModify(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ClientRepositoryImpl implements ClientRepository  {
                 )
         );
         update.push("products.$.jointAccount",jointAccount);
-        mongoTemplate.updateFirst(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
+        mongoTemplate.findAndModify(query, update, Client.class, ConstantGeneral.COLLECTION_CLIENT);
     }
 
     @Override

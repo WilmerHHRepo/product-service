@@ -1,19 +1,26 @@
 package com.bootcamp51.microservices.productservice.utils;
 
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
+import com.bootcamp51.microservices.productservice.enums.EnumTypeMovement;
+import com.bootcamp51.microservices.productservice.model.ProductSales;
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 
-import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.*;
+import java.math.BigDecimal;
+import java.util.*;
+
+import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.FACTOR_POSITIVE;
 import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.FACTOR_NEGATIVE;
+import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.CODE_DEPOSIT;
+import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.CODE_RETREAT;
+import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.CODE_PAYMENT;
+import static com.bootcamp51.microservices.productservice.constant.ConstantGeneral.CODE_CONSUMPTION;
+
 
 public class Utils {
 
     public static String getNumberOperation(){
         Random random = new Random();
         int randomNumber = 10000000 * random.nextInt(90000000);
-        return String.valueOf(randomNumber);
+        return String.valueOf(ArithmeticOperators.Abs.absoluteValueOf(randomNumber));
     }
 
     public static Date getFirstDay(){
@@ -47,4 +54,23 @@ public class Utils {
         }
         return factor;
     }
+
+    public static Integer getTotalMovementsDeposit(ProductSales productMovement) {
+        Date lastDay = getLastDay();
+        Date FirstDay = getFirstDay();
+        return (Integer) (int) Optional.ofNullable(productMovement.getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
+                g.getIndTypeMovement().equals(EnumTypeMovement.DEPOSIT.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
+        ).count();
+    }
+    public  static Integer getTotalMovementsRetreat(ProductSales productMovement) {
+        Date lastDay = getLastDay();
+        Date FirstDay = getFirstDay();
+        return (Integer) (int) Optional.ofNullable(productMovement.getMovements()).orElse(new ArrayList<>()).stream().filter(g ->
+                g.getIndTypeMovement().equals(EnumTypeMovement.RETREAT.getCode()) && g.getResgistrationDate().compareTo(lastDay) <= 0 && g.getResgistrationDate().compareTo(FirstDay) >= 0
+        ).count();
+    }
+
+
+
+
 }

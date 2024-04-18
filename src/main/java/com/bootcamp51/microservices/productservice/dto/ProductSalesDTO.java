@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductSalesDTO {
-    private Client client;
-    private ProductSales newProductSales;
+    private ProductSales productSales;
     private JointAccount jointAccount;
 }

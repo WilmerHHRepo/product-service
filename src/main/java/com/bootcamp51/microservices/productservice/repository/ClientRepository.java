@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 
 public interface ClientRepository {
-    void addProductToClient(ProductSales newProductSales, String id);
+    Mono<Client> addProductToClient(ProductSales newProductSales, String id);
     void addJointAccountToProductToClient(ProductSales newProductSales, String id, JointAccount jointAccount);
     Mono<Client> addJointMovementToProductToClient(ProductSales newProductSales, String id, Movement movement);
 }

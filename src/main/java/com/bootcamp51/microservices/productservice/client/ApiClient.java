@@ -31,7 +31,7 @@ public class ApiClient {
     private static final Logger logger = LoggerFactory.getLogger(ApiClient.class);
 
 
-    public Mono<Client> findByID(String id){
+    public Mono<Client> findByAccount(String id){
         HttpClient httpClient = HttpClient.create()
                 .wiretap("",
                         LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
@@ -39,7 +39,7 @@ public class ApiClient {
                 .baseUrl(rutaApiClient).build();
 
         return webClient.get()
-                .uri("/by-id/" + id)
+                .uri("/by-cta/" + id)
                 .retrieve()
                 .bodyToMono(Client.class);
 //                .bodyToMono(Client.class).map(m -> null)
@@ -56,6 +56,20 @@ public class ApiClient {
 //
 //                });
 
+    }
+
+
+    public Mono<Client> findByDocument(String document){
+        HttpClient httpClient = HttpClient.create()
+                .wiretap("",
+                        LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
+        WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl(rutaApiClient).build();
+
+        return webClient.get()
+                .uri("/by-document/" + document)
+                .retrieve()
+                .bodyToMono(Client.class);
     }
 
 

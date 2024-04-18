@@ -17,12 +17,11 @@ public class ProductSalesController {
     @Autowired
     private ProductSalesServiceUtil productSalesServiceUtil;
 
-    @PatchMapping
-    public ResponseEntity<Client> productSales(@RequestBody ProductSalesDTO productSalesRequest) throws Exception {
-        Client client = productSalesRequest.getClient();
-        ProductSales productSales = productSalesRequest.getNewProductSales();
+    @PatchMapping("/{document}")
+    public ResponseEntity<Client> productSales(@RequestBody ProductSalesDTO productSalesRequest, @PathVariable String document) throws Exception {
+        ProductSales productSales = productSalesRequest.getProductSales();
         JointAccount jointAccount =  productSalesRequest.getJointAccount();
-        client = productSalesServiceUtil.productSales(client, productSales, jointAccount);
+        Client client = productSalesServiceUtil.productSales(productSales, jointAccount, document);
         return new ResponseEntity<>(client, HttpStatus.ACCEPTED);
     }
 }

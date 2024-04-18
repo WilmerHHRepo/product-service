@@ -10,6 +10,5 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductMovementDTO {
-    private Client client;
     private Movement movement;
 }
