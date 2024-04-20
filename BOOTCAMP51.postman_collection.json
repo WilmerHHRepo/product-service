@@ -59,7 +59,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9010/bootcamp51/ms/client/by-id/661853de46b9713a0eeaf183",
+							"raw": "http://localhost:9010/bootcamp51/ms/client/by-id/661d528d8e97eb0bcc22b5cc",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -70,7 +70,7 @@
 								"ms",
 								"client",
 								"by-id",
-								"661853de46b9713a0eeaf183"
+								"661d528d8e97eb0bcc22b5cc"
 							]
 						}
 					},
@@ -83,7 +83,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"indTypeClient\":\"1\",\r\n    \"desTypeClient\":\"Persona\",\r\n    \"indTypeDocument\":\"1\",\r\n    \"desTypeDocument\":\"DNI\",\r\n    \"numDocument\":\"12345678\",\r\n    \"name\":\"Wilmer \",\r\n    \"lastName\":\"Huaqui H\"\r\n}",
+							"raw": "{\r\n    \"indTypeClient\":\"1\",\r\n    \"desTypeClient\":\"Persona\",\r\n    \"indTypeDocument\":\"1\",\r\n    \"desTypeDocument\":\"DNI\",\r\n    \"numDocument\":\"44444444\",\r\n    \"name\":\"Alejandro\",\r\n    \"lastName\":\"El guerrero\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -168,6 +168,115 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"indTypeClient\": \"2\",\r\n    \"desTypeClient\": \"Empresarial\",\r\n    \"indTypeDocument\": \"2\",\r\n    \"desTypeDocument\": \"RUC\",\r\n    \"numDocument\": \"21987654321\",\r\n    \"name\": \"Mixercom\",\r\n    \"lastName\": \"Soldimix SAC\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9010/bootcamp51/ms/client/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9010",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"client",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findByNumAccount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9010/bootcamp51/ms/client/by-cta/200-1234567890",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9010",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"client",
+								"by-cta",
+								"200-1234567890"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findByNumDocument",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9010/bootcamp51/ms/client/by-document/12345678",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9010",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"client",
+								"by-document",
+								"12345678"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createClientPersonVIP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"indTypeClient\":\"3\",\r\n    \"desTypeClient\":\"Persona VIP\",\r\n    \"indTypeDocument\":\"1\",\r\n    \"desTypeDocument\":\"DNI\",\r\n    \"numDocument\":\"44444444\",\r\n    \"name\":\"Alejandro\",\r\n    \"lastName\":\"El guerrero\",\r\n    \"products\": [\r\n        {\r\n            \"indTypeProduct\":\"1\",\r\n            \"desTypeProduct\":\"Cuenta Bancaria (Pasivo)\",\r\n            \"indProduct\":\"1\",\r\n            \"desProduct\":\"Cuenta Ahorro\",\r\n            \"numAccount\":\"150-5555668899\",\r\n            \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\":\"123-150-5555668899-10\",\r\n            \"countableBalance\":\"500.00\",\r\n            \"availableBalance\":\"500.00\"\r\n        }, {\r\n            \"indTypeProduct\":\"2\",\r\n            \"desTypeProduct\":\"Credito (Activos)\",\r\n            \"indProduct\":\"6\",\r\n            \"desProduct\":\"Tarjeta de Credito\",\r\n            \"numAccount\":\"150-3355441122\",\r\n            \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\":\"123-150-3355441122-10\",\r\n            \"countableBalance\":\"1000.00\",\r\n            \"availableBalance\":\"1000.00\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9010/bootcamp51/ms/client/by-cta/200-1234567890",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9010",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"client",
+								"by-cta",
+								"200-1234567890"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createClientCompanyPYME",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"indTypeClient\":\"4\",\r\n    \"desTypeClient\":\"Empresarial PYME\",\r\n    \"indTypeDocument\":\"1\",\r\n    \"desTypeDocument\":\"DNI\",\r\n    \"numDocument\":\"44444444\",\r\n    \"name\":\"Alejandro\",\r\n    \"lastName\":\"El guerrero\",\r\n    \"products\": [\r\n        {\r\n            \"indTypeProduct\":\"1\",\r\n            \"desTypeProduct\":\"Cuenta Bancaria (Pasivo)\",\r\n            \"indProduct\":\"2\",\r\n            \"desProduct\":\"Cuenta Corriente\",\r\n            \"numAccount\":\"150-5555668899\",\r\n            \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\":\"123-150-5555668899-10\",\r\n            \"countableBalance\":\"500.00\",\r\n            \"availableBalance\":\"500.00\"\r\n        }, {\r\n            \"indTypeProduct\":\"2\",\r\n            \"desTypeProduct\":\"Credito (Activos)\",\r\n            \"indProduct\":\"6\",\r\n            \"desProduct\":\"Tarjeta de Credito\",\r\n            \"numAccount\":\"150-3355441122\",\r\n            \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\":\"123-150-3355441122-10\",\r\n            \"countableBalance\":\"1000.00\",\r\n            \"availableBalance\":\"1000.00\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -345,11 +454,11 @@
 				{
 					"name": "ProductSalesPerson",
 					"request": {
-						"method": "POST",
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"client\": {\r\n    \"id\": \"661d528d8e97eb0bcc22b5cc\",\r\n    \"indTypeClient\": \"1\",\r\n    \"desTypeClient\": \"Persona\",\r\n    \"indTypeDocument\": \"1\",\r\n    \"desTypeDocument\": \"DNI\",\r\n    \"numDocument\": \"12345678\",\r\n    \"name\": \"Wilmer 123\",\r\n    \"lastName\": \"Huaqui Huayllacayan\",\r\n    \"products\": [\r\n        {\r\n            \"indTypeProduct\": \"1\",\r\n            \"desTypeProduct\": \"Cuenta Bancaria (Pasivo)\",\r\n            \"indProduct\": \"1\",\r\n            \"desProduct\": \"Cuenta Ahorro\",\r\n            \"numAccount\": \"200-1234567890\",\r\n            \"desCodeInterbank\": \"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\": \"123-200-1234567890-10\",\r\n            \"countableBalance\": 3000.00,\r\n            \"availableBalance\": 3000.00\r\n        }\r\n    ]\r\n\r\n\r\n    },\r\n    \"newProductSales\":{\r\n        \"indTypeProduct\":\"1\",\r\n        \"desTypeProduct\":\"Cuenta Bancaria (Pasivo)\",\r\n        \"indProduct\":\"1\",\r\n        \"desProduct\":\"Cuenta Ahorro\",\r\n        \"numAccount\":\"200-1234567890\",\r\n        \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n        \"numAccountCodeInterbank\":\"123-200-1234567890-10\",\r\n        \"countableBalance\":\"3000.00\",\r\n        \"availableBalance\":\"3000.00\"\r\n    }\r\n}\r\n\r\n\r\n\r\n\r\n",
+							"raw": "{\r\n    \"productSales\":{\r\n        \"indTypeProduct\":\"1\",\r\n        \"desTypeProduct\":\"Cuenta Bancaria (Pasivo)\",\r\n        \"indProduct\":\"1\",\r\n        \"desProduct\":\"Cuenta Corriente\",\r\n        \"numAccount\":\"300-6852365478\",\r\n        \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n        \"numAccountCodeInterbank\":\"123-300-6852365478-10\",\r\n        \"countableBalance\":\"0.00\",\r\n        \"availableBalance\":\"0.00\"\r\n    }\r\n}\r\n\r\n\r\n\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -357,7 +466,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:9020/bootcamp51/ms/product/sales",
+							"raw": "http://localhost:9020/bootcamp51/ms/product/sales/87654321",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -367,7 +476,8 @@
 								"bootcamp51",
 								"ms",
 								"product",
-								"sales"
+								"sales",
+								"87654321"
 							]
 						}
 					},
@@ -376,11 +486,11 @@
 				{
 					"name": "ProductSalesCompany",
 					"request": {
-						"method": "POST",
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"client\": {\r\n    \"id\": \"661d4d9d8e97eb0bcc22b5cb\",\r\n    \"indTypeClient\": \"2\",\r\n    \"desTypeClient\": \"Empresarial\",\r\n    \"indTypeDocument\": \"2\",\r\n    \"desTypeDocument\": \"RUC\",\r\n    \"numDocument\": \"21987654321\",\r\n    \"name\": \"Mixercom\",\r\n    \"lastName\": \"Soldimix SAC\",\r\n    \"products\": [\r\n        {\r\n            \"indTypeProduct\": \"2\",\r\n            \"desTypeProduct\": \"Credito (Activo)\",\r\n            \"indProduct\": \"5\",\r\n            \"desProduct\": \"Credito Empresarial\",\r\n            \"numAccount\": \"300-1234567890\",\r\n            \"desCodeInterbank\": \"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\": \"123-200-1234567890-10\",\r\n            \"countableBalance\": 3000.00,\r\n            \"availableBalance\": 3000.00\r\n        }\r\n    ]\r\n    },\r\n    \"newProductSales\":{\r\n        \"indTypeProduct\":\"2\",\r\n        \"desTypeProduct\":\"Credito (Activo)\",\r\n        \"indProduct\":\"5\",\r\n        \"desProduct\":\"Credito Empresarial\",\r\n        \"numAccount\":\"300-1234567890\",\r\n        \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n        \"numAccountCodeInterbank\":\"123-200-1234567890-10\",\r\n        \"countableBalance\":\"3000.00\",\r\n        \"availableBalance\":\"3000.00\"\r\n    },\r\n    \"jointAccount\":{\r\n        \"members\":[\"661d4c588e97eb0bcc22b5ca\", \"661cbb0bc83a294483fe0c15\"],\r\n        \"indProduct\":\"5\",\r\n        \"desProduct\": \"Credito Empresarial\",\r\n        \"numAccount\": \"300-1234567890\"\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n\r\n",
+							"raw": "{\r\n    \"productSales\":{\r\n        \"indTypeProduct\":\"2\",\r\n        \"desTypeProduct\":\"Credito (Activo)\",\r\n        \"indProduct\":\"5\",\r\n        \"desProduct\":\"Credito Empresarial\",\r\n        \"numAccount\":\"300-1234567890\",\r\n        \"desCodeInterbank\":\"N de cuenta interbancario (CCI)\",\r\n        \"numAccountCodeInterbank\":\"123-200-1234567890-10\",\r\n        \"countableBalance\":\"3000.00\",\r\n        \"availableBalance\":\"3000.00\"\r\n    },\r\n    \"jointAccount\":{\r\n        \"members\":[\"661d4c588e97eb0bcc22b5ca\", \"661cbb0bc83a294483fe0c15\"],\r\n        \"indProduct\":\"5\",\r\n        \"desProduct\": \"Credito Empresarial\",\r\n        \"numAccount\": \"300-1234567890\"\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -410,13 +520,13 @@
 			"name": "OperationMovement",
 			"item": [
 				{
-					"name": "http://localhost:9020/bootcamp51/ms/product/Movement",
+					"name": "ProductMovementPersonDeposito",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"client\": {\r\n    \"id\": \"661d528d8e97eb0bcc22b5cc\",\r\n    \"indTypeClient\": \"1\",\r\n    \"desTypeClient\": \"Persona\",\r\n    \"indTypeDocument\": \"1\",\r\n    \"desTypeDocument\": \"DNI\",\r\n    \"numDocument\": \"12345678\",\r\n    \"name\": \"Wilmer \",\r\n    \"lastName\": \"Huaqui H\",\r\n    \"products\": [\r\n        {\r\n            \"indTypeProduct\": \"1\",\r\n            \"desTypeProduct\": \"Cuenta Bancaria (pasivo)\",\r\n            \"indProduct\": \"1\",\r\n            \"desProduct\": \"Cuenta Ahorro\",\r\n            \"numAccount\": \"200-1234567890\",\r\n            \"desCodeInterbank\": \"N de cuenta interbancario (CCI)\",\r\n            \"numAccountCodeInterbank\": \"123-200-1234567890-10\",\r\n            \"countableBalance\": 3000.00,\r\n            \"availableBalance\": 3000.00\r\n        }\r\n    ]\r\n    }, \r\n    \"movement\":{\r\n        \"indTypeMovement\":\"1\",\r\n        \"desTypeMovement\":\"Depositos\",\r\n        \"operationAmount\":\"500\",\r\n        \"establishment\":\"Transferencia\",\r\n        \"totalFees\":\"-\",\r\n        \"pendingInstallments\":\"-\",\r\n        \"duesPaid\":\"-\",\r\n        \"indPurchaseOrigin\":\"1\",\r\n        \"desPurchaseOrigin\":\"Nacional\"\r\n    }\r\n}\r\n\r\n\r\n\r\n\r\n",
+							"raw": "{\r\n    \"indTypeMovement\":\"1\",\r\n    \"desTypeMovement\":\"Depositos\",\r\n    \"operationAmount\":\"500\",\r\n    \"establishment\":\"Cajero aviacion\",\r\n    \"totalFees\":\"0\",\r\n    \"pendingInstallments\":\"0\",\r\n    \"duesPaid\":\"0\",\r\n    \"indPurchaseOrigin\":\"1\",\r\n    \"desPurchaseOrigin\":\"Nacional\"\r\n}\r\n\r\n\r\n\r\n\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -424,7 +534,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:9020/bootcamp51/ms/product/Movement/200-1234567890",
+							"raw": "http://localhost:9020/bootcamp51/ms/product/movement/300-6852365478",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -434,8 +544,153 @@
 								"bootcamp51",
 								"ms",
 								"product",
-								"Movement",
+								"movement",
+								"300-6852365478"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ProductMovementPersonRetiro",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"indTypeMovement\":\"2\",\r\n    \"desTypeMovement\":\"Retiros\",\r\n    \"operationAmount\":\"10\",\r\n    \"establishment\":\"Agente\",\r\n    \"totalFees\":\"0\",\r\n    \"pendingInstallments\":\"0\",\r\n    \"duesPaid\":\"0\",\r\n    \"indPurchaseOrigin\":\"1\",\r\n    \"desPurchaseOrigin\":\"Nacional\"\r\n}\r\n\r\n\r\n\r\n\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9020/bootcamp51/ms/product/movement/200-1234567890",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"product",
+								"movement",
 								"200-1234567890"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transferBetweenAccountsClient",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"indTypeMovement\":\"5\",\r\n    \"desTypeMovement\":\"Transferencia entre cuentas de cliente\",\r\n    \"operationAmount\":\"1000\",\r\n    \"establishment\":\"APP MOVIL\",\r\n    \"indPurchaseOrigin\":\"1\",\r\n    \"desPurchaseOrigin\":\"Nacional\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9020/bootcamp51/ms/product/movement/by-between-client/200-1234567890/and/200-0987654321?document=12345678",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"product",
+								"movement",
+								"by-between-client",
+								"200-1234567890",
+								"and",
+								"200-0987654321"
+							],
+							"query": [
+								{
+									"key": "document",
+									"value": "12345678"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transferBetweenAccountsthirdparties",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"indTypeMovement\":\"6\",\r\n    \"desTypeMovement\":\"transferencia entre cuentas a terceros\",\r\n    \"operationAmount\":\"640\",\r\n    \"establishment\":\"APP MOVIL\",\r\n    \"indPurchaseOrigin\":\"1\",\r\n    \"desPurchaseOrigin\":\"Nacional\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9020/bootcamp51/ms/product/movement/by-between-third-parties/200-1234567890/and/123-300-6543219875-10?originDocument=12345678&destinationDocument=87654321",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9020",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"product",
+								"movement",
+								"by-between-third-parties",
+								"200-1234567890",
+								"and",
+								"123-300-6543219875-10"
+							],
+							"query": [
+								{
+									"key": "originDocument",
+									"value": "12345678"
+								},
+								{
+									"key": "destinationDocument",
+									"value": "87654321"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "reports-by-TypeProduct",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9040/bootcamp51/ms/reports/by-TypeProduct",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9040",
+							"path": [
+								"bootcamp51",
+								"ms",
+								"reports",
+								"by-TypeProduct"
 							]
 						}
 					},
