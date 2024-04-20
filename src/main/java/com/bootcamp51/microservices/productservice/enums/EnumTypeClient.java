@@ -5,7 +5,9 @@ import lombok.Getter;
 @Getter
 public enum EnumTypeClient  {
     PERSON("1","Person"),
-    COMPANY("2","Company");
+    COMPANY("2","Company"),
+    PERSON_VIP("2","Company"),
+    COMPANY_PYME("2","Company");
     private String code;
     private String description;
 

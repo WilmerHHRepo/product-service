@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/bootcamp51/ms/product/sales")
+@RequestMapping("/sales")
 public class ProductSalesController {
 
     @Autowired

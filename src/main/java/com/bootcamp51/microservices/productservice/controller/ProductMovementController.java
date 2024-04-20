@@ -20,7 +20,7 @@ import javax.websocket.server.PathParam;
  * class ProductMovementController.
  */
 @RestController
-@RequestMapping("/bootcamp51/ms/product/movement")
+@RequestMapping("/movement")
 public class ProductMovementController {
 
     @Autowired

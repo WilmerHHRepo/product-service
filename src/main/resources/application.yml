@@ -1,5 +1,7 @@
 server:
   port: 9020
+  servlet:
+    context-path: /bootcamp51/ms/product
 
 spring:
   data:
@@ -7,6 +9,6 @@ spring:
       uri: mongodb://localhost:27017/bootcamp51?authSource=admin
 
 rutaApiClient: "http://localhost:9010/bootcamp51/ms/client"
-reintentosApiClient: 3
+retryApiClient: 3
 timeIntervalApiClient: 3
 

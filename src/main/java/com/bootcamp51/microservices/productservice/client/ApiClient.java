@@ -8,69 +8,68 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.logging.AdvancedByteBufFormat;
-import reactor.util.retry.Retry;
 
-import java.time.Duration;
-
+/**
+ * Class ApiClient.
+ * author by Wilmer Huaqui.
+ */
 @Component
 public class ApiClient {
 
-    @Value("${rutaApiClient:}")
-    private String rutaApiClient;
+  @Value("${rutaApiClient:}")
+  private String rutaApiClient;
 
-    @Value("${reintentosApiClient:}")
-    private Integer retryApiClient;
+  @Value("${retryApiClient:}")
+  private Integer retryApiClient;
 
-    @Value("${timeIntervalApiClient}")
-    private Integer timeIntervalApiClient;
+  @Value("${timeIntervalApiClient}")
+  private Integer timeIntervalApiClient;
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiClient.class);
-
-
-    public Mono<Client> findByAccount(String id){
-        HttpClient httpClient = HttpClient.create()
-                .wiretap("",
-                        LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
-        WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl(rutaApiClient).build();
-
-        return webClient.get()
-                .uri("/by-cta/" + id)
-                .retrieve()
-                .bodyToMono(Client.class);
-//                .bodyToMono(Client.class).map(m -> null)
-//                .retryWhen(Retry.backoff(retryApiClient, Duration.ofSeconds(timeIntervalApiClient)).filter(this::retry)
-//                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-//                            throw new RuntimeException("error de conexion");
-//
-//                        }))
-//                .doOnError(throwable -> {
-//                    if (throwable instanceof WebClientResponseException) {
-//
-//                    }
-//                    return null;
-//
-//                });
-
-    }
+  private static final Logger logger = LoggerFactory.getLogger(ApiClient.class);
 
 
-    public Mono<Client> findByDocument(String document){
-        HttpClient httpClient = HttpClient.create()
-                .wiretap("",
-                        LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
-        WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl(rutaApiClient).build();
+  /**
+   * findByAccount for id.
+   *
+   * @param id input
+   * @return Client.
+   */
+  public Mono<Client> findByAccount(String id) {
+    HttpClient httpClient = HttpClient.create()
+        .wiretap("",
+            LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
+    WebClient webClient = WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
+        .baseUrl(rutaApiClient).build();
 
-        return webClient.get()
-                .uri("/by-document/" + document)
-                .retrieve()
-                .bodyToMono(Client.class);
-    }
+    return webClient.get()
+        .uri("/by-cta/" + id)
+        .retrieve()
+        .bodyToMono(Client.class);
+  }
+
+  /**
+   * findByDocument by document.
+   *
+   * @param document input.
+   * @return client.
+   */
+  public Mono<Client> findByDocument(String document) {
+    HttpClient httpClient = HttpClient.create()
+        .wiretap("",
+            LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL);
+    WebClient webClient = WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
+        .baseUrl(rutaApiClient).build();
+
+    return webClient.get()
+        .uri("/by-document/" + document)
+        .retrieve()
+        .bodyToMono(Client.class);
+  }
 
 
 }
