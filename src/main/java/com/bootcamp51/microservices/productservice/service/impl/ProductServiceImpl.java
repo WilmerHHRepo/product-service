@@ -28,11 +28,6 @@ public class ProductServiceImpl implements ProductService  {
   }
 
   @Override
-  public Flux<Product> findAllProduct() {
-    return productRepository.findAll();
-  }
-
-  @Override
   public Flux<List<Product>> findByDesProduct(String desProduct){
     return productRepository.findByDesProduct(desProduct);
   }

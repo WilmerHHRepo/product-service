@@ -6,7 +6,7 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/bootcamp51?authSource=admin
+      uri: mongodb://192.168.1.51:27017/bootcamp51?authSource=admin
 
 rutaApiClient: "http://localhost:9010/bootcamp51/ms/client"
 retryApiClient: 3

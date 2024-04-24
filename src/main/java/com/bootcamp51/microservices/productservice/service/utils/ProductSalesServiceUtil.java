@@ -95,12 +95,6 @@ public class ProductSalesServiceUtil {
             throw new Exception(e);
         }
 
-
-
-
-
     }
-
-
-
+    
 }

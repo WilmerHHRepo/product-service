@@ -193,7 +193,6 @@ public class ProductMovementServiceUtil {
         }
     }
 
-
     private Movement executeAccountOperations(ProductSales productMovement, RuleMovement ruleMovement, Movement movement, Client client) {
         BigDecimal availableBalance = productMovement.getAvailableBalance();
         Date lastDay = Utils.getLastDay();

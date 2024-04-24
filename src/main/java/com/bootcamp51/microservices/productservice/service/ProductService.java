@@ -17,8 +17,6 @@ import java.util.function.Supplier;
  */
 public interface ProductService {
 
-    Flux<Product> findAllProduct();
-
     Flux<List<Product>> findByDesProduct(String desProduct);
 
     Mono<Product> findById(String id);
